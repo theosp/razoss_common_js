@@ -138,14 +138,6 @@
                 document.body.style.backgroundColor = rgw.getTrasparentColor();
                 rgw.setOpacity(255);
 
-                window.onrazossshow = function (visible) {
-                    if (parseInt(visible, 10)) {
-                        self.fireEvent('onshow');
-                    } else {
-                        self.fireEvent('onhide');
-                    }
-                };
-
                 // The razoss browser calls onrazossresize() on resize
                 window.onrazossresize = function (width, height) {
                     var razoss_browser_width = width - scroll_bar_width;
@@ -177,11 +169,7 @@
                 self.openUrl(url);
                 return false;
             });
-
-            self.fireEvent('environment_determined', [self.environment]);
         };
-
-        {% include 'js/enable_events.inc.js' %}
 
         this.init();
 

@@ -48,7 +48,6 @@ RERUIRES: Node.js's EventEmitter
         } else {
             self.environment = 'direct_view';
         }
-
     };
 
     $.RazossApi.prototype.getUid = function () {
@@ -62,6 +61,8 @@ RERUIRES: Node.js's EventEmitter
     };
 
     $.RazossApi.prototype.version = function () {
+        var self = this;
+
         if (self.environment === 'razoss_browser') {
             return rgw.getEngineVariable("engineversion");
         } else {
@@ -71,6 +72,8 @@ RERUIRES: Node.js's EventEmitter
 
     // Go to a web page
     $.RazossApi.prototype.openUrl = function (url) {
+        var self = this;
+
         if (self.environment === 'razoss_browser') {
             rgw.navigate(url);
         } else {
@@ -82,6 +85,8 @@ RERUIRES: Node.js's EventEmitter
 
     // Returns a url with an image of the current window view.
     $.RazossApi.prototype.printScreen = function () {
+        var self = this;
+
         if (self.environment === 'razoss_browser') {
             return ('http://www.razoss.com/alpha/app/thumbs/' +
                     rgw.postPageInfo('www.razoss.com', '/razoss_services/razoss_uploader.php'));
@@ -92,6 +97,8 @@ RERUIRES: Node.js's EventEmitter
 
     // Returns the current window url
     $.RazossApi.prototype.getWindowUrl = function () {
+        var self = this;
+
         if (self.environment === 'razoss_browser') {
             return rgw.getCurrentPage();
         } else {
@@ -101,6 +108,8 @@ RERUIRES: Node.js's EventEmitter
 
     // Returns the current window title
     $.RazossApi.prototype.getWindowTitle = function () {
+        var self = this;
+
         if (self.environment === 'razoss_browser') {
             return rgw.getCurrentTitle();
         } else {
@@ -110,6 +119,8 @@ RERUIRES: Node.js's EventEmitter
 
     // Returns the current window description
     $.RazossApi.prototype.getWindowDescription = function () {
+        var self = this;
+
         if (self.environment === 'razoss_browser') {
             return rgw.getCurrentMetadata("description");
         } else {

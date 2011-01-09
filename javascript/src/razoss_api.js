@@ -137,4 +137,67 @@ RERUIRES: Node.js's EventEmitter
             rgw.setOpacity(255);
         }
     }
+
+    // The Razoss browser allow only single callback reference to be set as the
+    // listener of a certein event. Therefore only one $.RazossApi object, i.e.
+    // the one that bind and interact with that listener, can work with that
+    // razoss browser events. So to avoid conflicts we initiate $.RazossApi
+    // object - RAZOSS_API that should be the only one in use, and implement
+    // upon it more flexible mechanizem for working with events.
+    RAZOSS_API = new $.RazossApi();
+
+    RAZOSS_API.listeners = {};
+
+    RAZOSS_API.getEventName = function (event_name) {
+        return 'razoss_event_' + event_name;
+    };
+
+    RAZOSS_API.newRazossEventListener = function (event_name) {
+        var self = this;
+
+        if (self.environment === 'razoss_browser') {
+            if (typeof RAZOSS_API.listeners[event_name] === 'undefined') {
+                window[self.getEventName(event_name)] = function () {
+                    var args = Array.prototype.slice.call(arguments);
+                    args.unshift(self.getEventName(event_name));
+
+                    RAZOSS_API.emit.apply(self, args);
+                };
+
+                rgw.registerEvent(event_name, self.getEventName(event_name));
+            }
+        }
+    };
+
+    RAZOSS_API.onRazossEvent = function (event_name, callback) {
+        var self = this;
+
+        self.newRazossEventListener(event_name);
+
+        self.on(self.getEventName(event_name), callback);
+    };
+
+    RAZOSS_API.onceRazossEvent = function (event_name, callback) {
+        var self = this;
+
+        self.newRazossEventListener(event_name);
+
+        self.once(self.getEventName(event_name), callback);
+    };
+
+    RAZOSS_API.removeRazossEventListener = function (event_name, callback) {
+        var self = this;
+
+        self.newRazossEventListener(event_name);
+
+        self.removeListener(self.getEventName(event_name), callback);
+    };
+
+    RAZOSS_API.removeAllListeners = function (event_name) {
+        var self = this;
+
+        self.newRazossEventListener(event_name);
+
+        self.removeListener(self.getEventName(event_name));
+    };
 })(jQuery);

@@ -360,6 +360,7 @@ RERUIRES: Node.js's EventEmitter
           Daniel Chcouri's theosp_common_js (theosp.js)
 */
 (function ($) {
+    // constructor {{{
     $.RazossApi = function (options) {
         var self = this;
 
@@ -376,7 +377,16 @@ RERUIRES: Node.js's EventEmitter
 
     $.RazossApi.prototype = new EventEmitter();
     $.RazossApi.prototype.constructor = $.RazossApi;
+    // }}}
 
+    // properties {{{
+    $.RazossApi.prototype.options = {
+    };
+    // }}}
+
+    // methods {{{
+
+    // $ {{{
     $.RazossApi.prototype.$ = function (selector, context) {
         var self = this;
 
@@ -386,10 +396,9 @@ RERUIRES: Node.js's EventEmitter
 
         return $(selector, context);
     };
+    // }}}
 
-    $.RazossApi.prototype.options = {
-    };
-
+    // init {{{
     $.RazossApi.prototype.init = function () {
         var self = this;
 
@@ -401,8 +410,14 @@ RERUIRES: Node.js's EventEmitter
         } else {
             self.environment = 'direct_view';
         }
-    };
 
+        var host_browser_ua = self.getHostBrowser();
+
+        $('html').addClass('host_browser-' + host_browser_ua[0]);
+    };
+    // }}}
+
+    // getUid {{{
     $.RazossApi.prototype.getUid = function () {
         var self = this;
 
@@ -412,7 +427,9 @@ RERUIRES: Node.js's EventEmitter
             return null;
         }
     };
+    // }}}
 
+    // version {{{
     $.RazossApi.prototype.version = function () {
         var self = this;
 
@@ -422,7 +439,9 @@ RERUIRES: Node.js's EventEmitter
             return "plugin_mode";
         }
     };
+    // }}}
 
+    // openUrl {{{
     // Go to a web page
     $.RazossApi.prototype.openUrl = function (url) {
         var self = this;
@@ -435,7 +454,9 @@ RERUIRES: Node.js's EventEmitter
 
         return self;
     };
+    // }}}
 
+    // printScreen {{{
     // Returns a url with an image of the current window view.
     $.RazossApi.prototype.printScreen = function () {
         var self = this;
@@ -447,7 +468,9 @@ RERUIRES: Node.js's EventEmitter
             return '';
         }
     };
+    // }}}
 
+    // getWindowUrl {{{
     // Returns the current window url
     $.RazossApi.prototype.getWindowUrl = function () {
         var self = this;
@@ -458,7 +481,9 @@ RERUIRES: Node.js's EventEmitter
             return '';
         }
     };
+    // }}}
 
+    // getWindowTitle {{{
     // Returns the current window title
     $.RazossApi.prototype.getWindowTitle = function () {
         var self = this;
@@ -469,7 +494,9 @@ RERUIRES: Node.js's EventEmitter
             return '';
         }
     };
+    // }}}
 
+    // getWindowDescription {{{
     // Returns the current window description
     $.RazossApi.prototype.getWindowDescription = function () {
         var self = this;
@@ -480,7 +507,9 @@ RERUIRES: Node.js's EventEmitter
             return '';
         }
     };
+    // }}}
 
+    // dock {{{
     $.RazossApi.prototype.dock = function (horizonal_position, vertical_position) {
         var self = this;
 
@@ -489,7 +518,38 @@ RERUIRES: Node.js's EventEmitter
             document.body.style.backgroundColor = rgw.getTrasparentColor();
             rgw.setOpacity(255);
         }
-    }
+    };
+    // }}}
+
+    // getHostBrowser {{{
+    $.RazossApi.prototype.getHostBrowser = function () {
+        var self = this;
+
+        if (self.environment === 'razoss_browser') {
+            var host_browser_ua = rgw.getEngineVariable("hostbrowser").toLowerCase(),
+                ua = 
+                    /(webkit)[ \/]([\w.]+)/.exec(host_browser_ua) ||
+                    /(opera)(?:.*version)?[ \/]([\w.]+)/.exec(host_browser_ua) ||
+                    /(msie) ([\w.]+)/.exec(host_browser_ua) ||
+                    !/compatible/.test(host_browser_ua) && /(mozilla)(?:.*? rv:([\w.]+))?/.exec(host_browser_ua) || [];
+
+            if (ua[1] === 'msie') {
+                ua[1] = 'ie';
+            }
+
+            var host_browser = ua[1],
+                host_browser_version = ua[2];
+
+            return [host_browser, host_browser_version];
+        } else {
+            return ["direct", 0];
+        }
+    };
+    // }}}
+
+    // }}}
+
+    // Initiate singleton {{{
 
     // The Razoss browser allow only single callback reference to be set as the
     // listener of a certein event. Therefore only one $.RazossApi object, i.e.
@@ -553,4 +613,7 @@ RERUIRES: Node.js's EventEmitter
 
         self.removeListener(self.getEventName(event_name));
     };
+    // }}}
 })(jQuery);
+
+// vim:fdm=marker:fmr={{{,}}}:

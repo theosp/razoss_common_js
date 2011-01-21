@@ -57,6 +57,10 @@ RERUIRES: Node.js's EventEmitter
         } else {
             self.environment = 'direct_view';
         }
+
+        var host_browser_ua = self.getHostBrowser();
+
+        $('html').addClass('host_browser-' + host_browser_ua[0]);
     };
     // }}}
 
@@ -164,6 +168,30 @@ RERUIRES: Node.js's EventEmitter
     };
     // }}}
 
+    // getHostBrowser {{{
+    $.RazossApi.prototype.getHostBrowser = function () {
+        var self = this;
+
+        if (self.environment === 'razoss_browser') {
+            var host_browser_ua = rgw.getEngineVariable("hostbrowser").toLowerCase(),
+                ua = 
+                    /(webkit)[ \/]([\w.]+)/.exec(host_browser_ua) ||
+                    /(opera)(?:.*version)?[ \/]([\w.]+)/.exec(host_browser_ua) ||
+                    /(msie) ([\w.]+)/.exec(host_browser_ua) ||
+                    !/compatible/.test(host_browser_ua) && /(mozilla)(?:.*? rv:([\w.]+))?/.exec(host_browser_ua) || [];
+
+            if (ua[1] === 'msie') {
+                ua[1] = 'ie';
+            }
+
+            var host_browser = ua[1],
+                host_browser_version = ua[2];
+
+            return [host_browser, host_browser_version];
+        } else {
+            return ["direct", 0];
+        }
+    };
     // }}}
 
     // }}}

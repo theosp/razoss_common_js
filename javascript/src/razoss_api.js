@@ -7,6 +7,7 @@ RERUIRES: Node.js's EventEmitter
           Daniel Chcouri's theosp_common_js (theosp.js)
 */
 (function ($) {
+    // constructor {{{
     $.RazossApi = function (options) {
         var self = this;
 
@@ -23,7 +24,16 @@ RERUIRES: Node.js's EventEmitter
 
     $.RazossApi.prototype = new EventEmitter();
     $.RazossApi.prototype.constructor = $.RazossApi;
+    // }}}
 
+    // properties {{{
+    $.RazossApi.prototype.options = {
+    };
+    // }}}
+
+    // methods {{{
+
+    // $ {{{
     $.RazossApi.prototype.$ = function (selector, context) {
         var self = this;
 
@@ -33,10 +43,9 @@ RERUIRES: Node.js's EventEmitter
 
         return $(selector, context);
     };
+    // }}}
 
-    $.RazossApi.prototype.options = {
-    };
-
+    // init {{{
     $.RazossApi.prototype.init = function () {
         var self = this;
 
@@ -49,7 +58,9 @@ RERUIRES: Node.js's EventEmitter
             self.environment = 'direct_view';
         }
     };
+    // }}}
 
+    // getUid {{{
     $.RazossApi.prototype.getUid = function () {
         var self = this;
 
@@ -59,7 +70,9 @@ RERUIRES: Node.js's EventEmitter
             return null;
         }
     };
+    // }}}
 
+    // version {{{
     $.RazossApi.prototype.version = function () {
         var self = this;
 
@@ -69,7 +82,9 @@ RERUIRES: Node.js's EventEmitter
             return "plugin_mode";
         }
     };
+    // }}}
 
+    // openUrl {{{
     // Go to a web page
     $.RazossApi.prototype.openUrl = function (url) {
         var self = this;
@@ -82,7 +97,9 @@ RERUIRES: Node.js's EventEmitter
 
         return self;
     };
+    // }}}
 
+    // printScreen {{{
     // Returns a url with an image of the current window view.
     $.RazossApi.prototype.printScreen = function () {
         var self = this;
@@ -94,7 +111,9 @@ RERUIRES: Node.js's EventEmitter
             return '';
         }
     };
+    // }}}
 
+    // getWindowUrl {{{
     // Returns the current window url
     $.RazossApi.prototype.getWindowUrl = function () {
         var self = this;
@@ -105,7 +124,9 @@ RERUIRES: Node.js's EventEmitter
             return '';
         }
     };
+    // }}}
 
+    // getWindowTitle {{{
     // Returns the current window title
     $.RazossApi.prototype.getWindowTitle = function () {
         var self = this;
@@ -116,7 +137,9 @@ RERUIRES: Node.js's EventEmitter
             return '';
         }
     };
+    // }}}
 
+    // getWindowDescription {{{
     // Returns the current window description
     $.RazossApi.prototype.getWindowDescription = function () {
         var self = this;
@@ -127,7 +150,9 @@ RERUIRES: Node.js's EventEmitter
             return '';
         }
     };
+    // }}}
 
+    // dock {{{
     $.RazossApi.prototype.dock = function (horizonal_position, vertical_position) {
         var self = this;
 
@@ -136,7 +161,14 @@ RERUIRES: Node.js's EventEmitter
             document.body.style.backgroundColor = rgw.getTrasparentColor();
             rgw.setOpacity(255);
         }
-    }
+    };
+    // }}}
+
+    // }}}
+
+    // }}}
+
+    // Initiate singleton {{{
 
     // The Razoss browser allow only single callback reference to be set as the
     // listener of a certein event. Therefore only one $.RazossApi object, i.e.
@@ -200,4 +232,7 @@ RERUIRES: Node.js's EventEmitter
 
         self.removeListener(self.getEventName(event_name));
     };
+    // }}}
 })(jQuery);
+
+// vim:fdm=marker:fmr={{{,}}}:

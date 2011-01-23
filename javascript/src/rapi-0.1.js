@@ -141,11 +141,15 @@ var rgw = {
 		return result;
 	},
 	
-	navigate:function(url)
+	navigate:function(url, target)
 	{
+	
 		if(!this.RazossBrowser) { throw("Browser Not Supported"); }
-
-		window.external.rapi_Navigate(url);
+		
+		if(target==undefined)
+			target = NavigateTarget.current;
+		
+		window.external.rapi_Navigate(url, target);
 	},
 	
 	getCurrentPage:function()

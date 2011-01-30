@@ -386,6 +386,21 @@ RERUIRES: Node.js's EventEmitter
     // properties {{{
     $.RazossApi.prototype.options = {
     };
+
+    $.RazossApi.prototype.iframe_links_targets = {
+        // default IE behavior (can be a new tab or a new IE window)
+        "default": "defaultBehavior",
+
+        // razoss popups (for login windows)
+        popup: "razossPopup",
+
+        // navigate to the current tab
+        current: "hostCurrentTab",
+
+        // navigate in a new tab
+        new_tab: "hostNewTab"
+
+    };
     // }}}
 
     // methods {{{
@@ -509,6 +524,30 @@ RERUIRES: Node.js's EventEmitter
             return rgw.getCurrentMetadata("description");
         } else {
             return '';
+        }
+    };
+    // }}}
+
+    // setIframeLinksTarget {{{
+    $.RazossApi.prototype.setIframeLinksTarget = function (iframe_url, target) {
+        var self = this;
+
+        if (self.environment === 'razoss_browser') {
+            if (typeof iframe_url === 'undefined') {
+                return;
+            }
+
+            if (typeof target === 'undefined') {
+                target = "default";
+            }
+
+            if (!(target in self.iframe_links_targets)) {
+                target = "default";
+            }
+
+            rgw.setNewWindowBehavior(iframe_url, NewWindowBehavior[self.iframe_links_targets[target]]);
+        } else {
+            return;
         }
     };
     // }}}

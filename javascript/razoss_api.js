@@ -497,7 +497,7 @@ RERUIRES: Node.js's EventEmitter
         if (self.environment === 'razoss_browser') {
             return rgw.getCurrentPage();
         } else {
-            return '';
+            return 'http://www.razoss.com/';
         }
     };
     // }}}
@@ -510,7 +510,7 @@ RERUIRES: Node.js's EventEmitter
         if (self.environment === 'razoss_browser') {
             return rgw.getCurrentTitle();
         } else {
-            return '';
+            return 'Razoss';
         }
     };
     // }}}

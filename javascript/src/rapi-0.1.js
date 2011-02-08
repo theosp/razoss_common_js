@@ -191,6 +191,32 @@ var rgw = {
 		return strValue;
 	},
 	
+	setStorageValue:function(name, value)
+	{
+		if(!this.RazossBrowser) { throw("Browser Not Supported"); }				
+		window.external.rapi_SetStorageValue(name, value);
+	},
+	
+	getStorageValue:function(name)
+	{
+		if(!this.RazossBrowser) { throw("Browser Not Supported"); }				
+		var strValue = window.external.rapi_GetStorageValue(name);
+		return strValue;
+	},
+	
+	isStorageValueExists:function(name)
+	{
+		if(!this.RazossBrowser) { throw("Browser Not Supported"); }				
+		var b = window.external.rapi_IsStorageValueExists(name);
+		return b;
+	},
+	
+	executeScript:function(exescript)
+	{
+		if(!this.RazossBrowser) { throw("Browser Not Supported"); }				
+		window.external.rapi_ExecuteScript(exescript);
+	},
+	
 	setNewWindowBehavior:function(url, value)
 	{
 		if(!this.RazossBrowser) { throw("Browser Not Supported"); }

@@ -233,6 +233,42 @@ RERUIRES: Node.js's EventEmitter
     };
     // }}}
 
+    // put {{{
+    $.RazossApi.prototype.put = function (key, value) {
+        var self = this;
+
+        if (self.environment === 'razoss_browser') {
+            rgw.setStorageValue(key, value);
+        } else {
+            if ($.jStorage.storageAvailable()) {
+                $.jStorage.set(key, value);
+            }
+        }
+    };
+    // }}}
+
+    // get {{{
+    $.RazossApi.prototype.get = function (key, _default) {
+        var self = this;
+
+        if (typeof _default === 'undefined') {
+            _default = null;
+        }
+
+        if (self.environment === 'razoss_browser') {
+            var value = rgw.getStorageValue(key);
+
+            return value === "" ? _default : value;
+        } else {
+            if ($.jStorage.storageAvailable()) {
+                return $.jStorage.get(key, _default);
+            }
+
+            return _default;
+        }
+    };
+    // }}}
+
     // }}}
 
     // Initiate singleton {{{

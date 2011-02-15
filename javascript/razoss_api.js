@@ -846,6 +846,23 @@ RERUIRES: Node.js's EventEmitter
         new_tab: "hostNewTab"
 
     };
+
+    // navigation targets {{{
+    $.RazossApi.prototype.navigation_targets = {
+        current_window: "Current window",
+        new_tab: "New tab",
+        new_window: "New window"
+    };
+
+    $.RazossApi.prototype.navigation_targets_ids = {
+        current_window: 0,
+        new_tab: 1,
+        new_window: 2
+    };
+
+    $.RazossApi.prototype.default_navigation_target = "current_window";
+    // }}}
+
     // }}}
 
     // methods {{{
@@ -907,13 +924,21 @@ RERUIRES: Node.js's EventEmitter
 
     // openUrl {{{
     // Go to a web page
-    $.RazossApi.prototype.openUrl = function (url) {
+    $.RazossApi.prototype.openUrl = function (url, target) {
         var self = this;
 
+        if (typeof target === 'undefined' || !(target in self.navigation_targets)) {
+            target = "current_window";
+        }
+
         if (self.environment === 'razoss_browser') {
-            rgw.navigate(url);
+            rgw.navigate(url, self.navigation_targets_ids[target]);
         } else {
-            window.open(url);
+            if (target === "current_window") {
+                document.location = url;
+            } else if (target === "new_tab" ||  target === "new_window") {
+                window.open(url);
+            }
         }
 
         return self;
@@ -1138,6 +1163,27 @@ RERUIRES: Node.js's EventEmitter
         self.removeListener(self.getEventName(event_name));
     };
     // }}}
+
+    // inititate live events {{{
+    $('a.Rapi-navigate_current_window').live('click', function () {
+        RAZOSS_API.openUrl($(this).attr('href'), "current_window");
+
+        return false;
+    });
+
+    $('a.Rapi-navigate_new_tab').live('click', function () {
+        RAZOSS_API.openUrl($(this).attr('href'), "new_tab");
+
+        return false;
+    });
+
+    $('a.Rapi-navigate_new_window').live('click', function () {
+        RAZOSS_API.openUrl($(this).attr('href'), "new_window");
+
+        return false;
+    });
+    // }}}
+    
 })(jQuery);
 
 // vim:fdm=marker:fmr={{{,}}}:

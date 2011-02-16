@@ -329,6 +329,15 @@ RERUIRES: Node.js's EventEmitter
         }
     };
 
+    RAZOSS_API.emitRazossEvent = function (event_name, args) {
+        var self = this;
+
+        var args = Array.prototype.slice.call(arguments);
+        args[0] = self.getEventName(args[0]);
+
+        RAZOSS_API.emit.apply(self, args);
+    };
+
     RAZOSS_API.onRazossEvent = function (event_name, callback) {
         var self = this;
 

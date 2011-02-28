@@ -5,8 +5,21 @@ AUTHOR: Daniel Chcouri <333222@gmail.com>
 
 RERUIRES: Node.js's EventEmitter
           Daniel Chcouri's theosp_common_js (theosp.js)
+          Node.js's Url 
+              Node.js's QueryString
+                  Node.js's Buffer
+              Daniel Chcouri's theosp_common_js (theosp.js)
 */
 (function ($) {
+    var parseUrl = function (url) {
+        var parsed_url = NODE_URL.parse(url, false);
+        if (typeof parsed_url.hash !== 'undefined') {
+            parsed_url.parsed_hash = NODE_QUERY_STRING.parse(parsed_url.hash.substr(parsed_url.hash.indexOf('#') + 1));
+        }
+
+        return parsed_url;
+    };
+
     // constructor {{{
     $.RazossApi = function (options) {
         var self = this;
@@ -332,7 +345,7 @@ RERUIRES: Node.js's EventEmitter
     RAZOSS_API.emitRazossEvent = function (event_name, args) {
         var self = this;
 
-        var args = Array.prototype.slice.call(arguments);
+        args = Array.prototype.slice.call(arguments);
         args[0] = self.getEventName(args[0]);
 
         RAZOSS_API.emit.apply(self, args);
@@ -369,6 +382,229 @@ RERUIRES: Node.js's EventEmitter
 
         self.removeListener(self.getEventName(event_name));
     };
+
+    RAZOSS_API.windowQuery = function (query, callback) {
+        /* Call callback with the values of some window variables passed in query.
+         *
+         * query structure:
+         * [
+         *     {
+         *         condition: "<js_expression>",
+         *         vars: {
+         *             <label>: "<variable>",
+         *             <label>: "<variable>",
+         *             ...
+         *         }
+         *     }
+         * ]
+         *
+         * IMPORTANT: We assume each object has the same labels in vars.
+         *
+         * The result is passed to callback as a dictionary, <label> will be used
+         * as the key for the item holding <variable>'s value.
+         *
+         * Note that <variable> can be any js expression that has value, not
+         * only variables. example: "2 + 2" is a valid variable
+         *
+         * <js_expression>: different browsers might give different names to
+         * variables that stores the same data, for example Firefox/chrome's
+         * window.screenX is equivalent to IE's window.screenLeft.
+         * To overcome this problem, only if the expression written in
+         * <js_expression> is evaluate to true its vars object will be used to
+         * get the query's vars.
+         * The last (and only the last) query's object can omit the condition
+         * property.
+         */
+        var self = this;
+
+        if (typeof query === 'undefined' || typeof callback === 'undefined') {
+            if (typeof console !== 'undefined') {
+                console.log("ERROR: RAZOSS_API.windowQuery: requires two arguments.");
+            }
+
+            return;
+        }
+
+        if (self.environment === 'razoss_browser') {
+            var variables_test,
+                i,
+                razoss_page_query_id = (new Date()).getTime();
+
+            // React to query that has object other than the last without the condition property {{{
+            for (i = 0; i < query.length; i++) {
+                variables_test = query[i];
+            
+                if (typeof variables_test.condition === 'undefined' && i !== (query.length - 1)) {
+                    alert("RAZOSS_API.windowQuery: Query Syntax Error: only last " +
+                          "object of query can omit the condition property.");
+                    return;
+                }
+            }
+            // }}}
+
+            // generate query_evaluator_script {{{
+            var query_evaluator_script = "",
+                block_opened = false;
+
+            // declare RAZOSS_execute_query() {{{
+            query_evaluator_script += "var RAZOSS_execute_query = function () {";
+
+            // declare/initiate RAZOSS_new_location var
+            query_evaluator_script += "var RAZOSS_new_location = '';";
+
+            // check whether there is a # in the url, add it if not; if the url doesn't end with # add begin with &
+            query_evaluator_script += (
+                "if (String(document.location).indexOf('#') === -1) {" +
+                    "RAZOSS_new_location += '#';" +
+                "} else {" +
+                    "RAZOSS_new_location += '&';" +
+                "}"
+            );
+
+            for (i = 0; i < query.length; i++) {
+                variables_test = query[i];
+
+                // open condition block {{{
+
+                block_opened = true;
+                // if has condition and first {{{
+                if (typeof variables_test.condition !== "undefined" && i === 0) {
+                    query_evaluator_script += "if (" + variables_test.condition + ") {";
+                // }}}
+                // if has condition {{{
+                } else if (typeof variables_test.condition !== "undefined") {
+                    query_evaluator_script += "else if (" + variables_test.condition + ") {";
+                // }}}
+                // if don't have condition and not first {{{
+                } else if (typeof variables_test.condition === "undefined" && query_evaluator_script.length > 1) {
+                    query_evaluator_script += "else {";
+                // }}}
+                // if don't have condition and is first {{{
+                } else {
+                    block_opened = false;
+                }
+                // }}}
+                
+                // }}}
+
+                // generate the query evaluator script {{{
+                query_evaluator_script += "RAZOSS_new_location += ";
+
+                for (var label in variables_test.vars) {
+                    if (variables_test.vars.hasOwnProperty(label)) {
+                        query_evaluator_script += '"' + label + '=" + ' + variables_test.vars[label] + ' + "&" + ';
+                    }
+                }
+
+                query_evaluator_script += '"rpqid' + razoss_page_query_id + '";';
+                // }}}
+
+                // close condition block (if one was opened) {{{
+                if (block_opened === true) {
+                    query_evaluator_script += "}";
+                }
+                // }}}
+
+            }
+
+            query_evaluator_script += 'document.location += RAZOSS_new_location;';
+
+            query_evaluator_script += "};";
+            // }}}
+            
+            // on window ready execute query {{{
+
+            // Catch cases where the browser ready event has already occurred.
+            query_evaluator_script += (
+                'if ( document.readyState === "complete" ) {' +
+                    'RAZOSS_execute_query();' +
+                '} else {' +
+                    // Mozilla, Opera and webkit nightlies currently support this event
+                    'if ( document.addEventListener ) {' +
+                        'window.addEventListener( "load", RAZOSS_execute_query, false );' +
+                    // If IE event model is used
+                    '} else if ( document.attachEvent ) {' +
+                        'window.attachEvent( "onload", RAZOSS_execute_query );' +
+                    '}' +
+                '}'
+            );
+            // }}}
+            
+            // }}}
+            
+            // initiate listener for query response {{{
+            var onurlchangedListenerForQueryResponse = function (url) {
+                    var parsed_url = parseUrl(url);
+
+                    // if the url has hash with razoss_page_query_id as argument (query result received) {{{
+                    var result = {};
+                    if (typeof parsed_url.parsed_hash !== 'undefined' && "rpqid" + razoss_page_query_id in parsed_url.parsed_hash) {
+                        delete parsed_url.parsed_hash["rpqid" + razoss_page_query_id];
+
+                        // delete query parameters
+                        for (var label in query[0].vars) {
+                            if (query[0].vars.hasOwnProperty(label)) {
+                                result[label] = parsed_url.parsed_hash[label];
+                                delete parsed_url.parsed_hash[label];
+                            }
+                        }
+
+                        // Query response received, we can remove the listener
+                        RAZOSS_API.removeRazossEventListener('onurlchanged', onurlchangedListenerForQueryResponse);
+
+                        var hash_args = [];
+                        for (var item in parsed_url.parsed_hash) {
+                            if (parsed_url.parsed_hash.hasOwnProperty(item)) {
+                                var item_value = parsed_url.parsed_hash[item];
+
+                                if (item_value !== "") {
+                                    hash_args.push(item + "=" + item_value);
+                                } else {
+                                    hash_args.push(item);
+                                }
+                            }
+                        }
+
+                        parsed_url.hash = "#";
+                        if (hash_args.length !== 0) {
+                            parsed_url.hash += hash_args.join("&");
+                        }
+
+                        // Remove the query response parameters from the url {{{
+                        delete parsed_url.parsed_hash;
+
+                        var url_without_the_query_response = NODE_URL.format(parsed_url);
+
+                        // improve NODE_URL.format output {{{
+                        
+                        // http::/ => http:/ TODO {{{
+                        url_without_the_query_response = url_without_the_query_response.replace('http::', 'http:');
+                        url_without_the_query_response = url_without_the_query_response.replace('https::', 'https:');
+                        // }}}
+
+                        // }}}
+                        
+
+                        rgw.executeScript("document.location = \"" + url_without_the_query_response + "\";");
+                        // }}}
+
+                        callback(result);
+
+                        return;
+                    }
+                    // }}}
+                };
+
+            RAZOSS_API.onRazossEvent('onurlchanged', onurlchangedListenerForQueryResponse);
+            // }}}
+
+            // execute
+            alert(query_evaluator_script);
+            rgw.executeScript(query_evaluator_script);
+        } else {
+            return;
+        }
+    };
     // }}}
 
     // inititate live events {{{
@@ -390,7 +626,88 @@ RERUIRES: Node.js's EventEmitter
         return false;
     });
     // }}}
-    
+
+    /*
+    // Initiate emitter for the window_inner_position_or_dimension_changed event {{{
+    RAZOSS_API.current_page_position = [0, 0];
+    RAZOSS_API.current_page_dimensions = [0, 0];
+
+    RAZOSS_API.onRazossEvent('onurlchanged', function (url) {
+        var parsed_url = parseUrl(url),
+            rpqid_tester = /^rpqid/;
+
+        // if the url ends with hash it might be a result of finished query - do nothing TODO there should be url tracking, so we'll be able to tell exactly whether it is the same page the user view or he visited a page ends with # {{{
+        if (url.slice(-1) === "#") {
+            return;
+        }
+        // }}}
+
+        // if the url was changed as a result of window query - do nothing {{{
+        if (typeof parsed_url.parsed_hash !== 'undefined') {
+            for (var param in parsed_url.parsed_hash) {
+                if (parsed_url.parsed_hash.hasOwnProperty(param)) {
+                    if (rpqid_tester.test(param)) {
+                        return;
+                    }
+                }
+            }
+        }
+        // }}}
+
+        // query window size and position {{{
+        RAZOSS_API.windowQuery(
+            [
+                {
+                    condition: "typeof window.mozInnerScreenX !== 'undefined'",
+                    vars: {
+                        screenX: "(window.mozInnerScreenX - window.screenX)",
+                        screenY: "(window.mozInnerScreenY - window.screenY)",
+                        clientWidth: "document.documentElement.clientWidth",
+                        windowHeight: "window.innerHeight"
+                    }
+                },
+                {
+                    condition: "typeof window.screenX !== 'undefined'",
+                    vars: {
+                        screenX: "((window.outerWidth - window.innerWidth) / 2)",
+                        screenY: "((window.outerHeight - window.innerHeight) - ((window.outerWidth - window.innerWidth) / 2))",
+                        clientWidth: "document.documentElement.clientWidth",
+                        windowHeight: "window.innerHeight"
+                    }
+                },
+                {
+                    vars: {
+                        screenX: "window.screenLeft",
+                        screenY: "window.screenTop",
+                        clientWidth: "document.documentElement.clientWidth",
+                        windowHeight: "window.innerHeight"
+                    }
+                }
+            ],
+            function (result) {
+                alert(JSON.stringify(result));
+                $(document).ready(function () {
+                    $('body').css('overflow', 'hidden');
+
+                    $('.ClassicDock-dock_classic_dock_container')
+                        .wrap(
+                            '<div style="position: absolute; top: ' + result.screenY + 'px; left: ' + result.screenX + 'px; width: ' + result.clientWidth + 'px; height: ' + result.windowHeight + 'px;"></div>'
+                        );
+
+                    $('.ClassicDock-dock_classic_dock_container')
+                        .css({
+                            position: "absolute",
+                            left: 0,
+                            right: 0,
+                            bottom: 0
+                        });
+                });
+            }
+        );
+        // }}}
+    });
+    // }}}
+    */
 })(jQuery);
 
 // vim:fdm=marker:fmr={{{,}}}:

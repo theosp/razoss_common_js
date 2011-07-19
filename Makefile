@@ -12,7 +12,7 @@ JS_DIR = javascript
 JS_SRC_DIR = ${JS_DIR}/src
 
 RAZOSS_API_BASE_JS_FILES = \
-    ${JS_SRC_DIR}/rapi-0.1.js\
+    ${JS_SRC_DIR}/rapi.js\
     ${JS_SRC_DIR}/jStorage/jstorage.js\
     ${JS_SRC_DIR}/razoss_api.js
 

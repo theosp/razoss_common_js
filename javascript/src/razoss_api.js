@@ -121,6 +121,18 @@ RERUIRES: Node.js's EventEmitter
     };
     // }}}
 
+    // getInstaceId {{{
+    $.RazossApi.prototype.getInstaceId = function () {
+        var self = this;
+
+        if (self.environment === 'razoss_browser') {
+            return rgw.getEngineVariable("hostinstanceid");
+        } else {
+            return null;
+        }
+    };
+    // }}}
+
     // version {{{
     $.RazossApi.prototype.version = function () {
         var self = this;

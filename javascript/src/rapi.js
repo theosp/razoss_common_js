@@ -87,21 +87,6 @@ if (rapi_validator.get_type() === rapi_type.ie) {
         bold: 8
     };
 
-    /*
-    var RazossPostObject = {
-        cbPostOnComplete: null,
-        keep: null,
-        
-        onStart: function (cbOnComplete, keepData) {
-            cbPostOnComplete = cbOnComplete;
-            keep = keepData;
-        },
-        
-        onComplete: function () {
-            cbPostOnComplete(keep);
-        }
-    };*/
-
     var rgw = {
         version: "0.11",
         RazossBrowser: false,
@@ -280,7 +265,6 @@ if (rapi_validator.get_type() === rapi_type.ie) {
         
         dock: function (pos) {
             this.breakIfNotRazossBrowser();
-            
             window.external.rapi_Dock(pos);
         },
         dockEx: function (state) {
@@ -350,7 +334,6 @@ if (rapi_validator.get_type() === rapi_type.ie) {
         
         getTrasparentColor: function () {
             this.breakIfNotRazossBrowser();
-            
             var col = window.external.rapi_GetTransparency();
             return col;
         },
@@ -426,7 +409,7 @@ if (rapi_validator.get_type() === rapi_type.ie) {
         onLoad: function () {
             try {
                 //this.RazossBrowser = (window.external.rapi_IsRazossBrowser() != null);
-                this.RazossBrowser = (typeof razoss !== 'undefined');
+                this.RazossBrowser = (typeof window.razoss !== 'undefined');
             }
             catch (e) {
                 this.RazossBrowser = null;
@@ -441,25 +424,25 @@ if (rapi_validator.get_type() === rapi_type.ie) {
         
         getFrameworkVersion: function () {
             this.breakIfNotRazossBrowser();
-            return razoss.version;
+            return window.razoss.GetEngineVersion();
         },
         
         getFrameworkDate: function () {
             this.breakIfNotRazossBrowser();
-            return razoss.date;
+            return window.razoss.GetEngineDate();
         },
         
         registerEvent: function (eventName, funcName) {
             this.breakIfNotRazossBrowser();
             
-            var result = razoss.api.registerEvent(eventName, funcName);
+            var result = window.razoss.RegisterEvent(eventName, funcName);
             return result;
         },
         
         unregisterEvent: function (eventName) {
             this.breakIfNotRazossBrowser();
             
-            var result = razoss.api.unregisterEvent(eventName);
+            var result = window.razoss.UnregisterEvent(eventName);
             return result;
         },
         
@@ -471,68 +454,60 @@ if (rapi_validator.get_type() === rapi_type.ie) {
                 target = NavigateTarget.current;
             }
                 
-            razoss.api.navigate(url, target);
+            window.razoss.Navigate(url, target);
         },
         
         getCurrentPage: function () {
             this.breakIfNotRazossBrowser();
-            var strURL = razoss.api.getCurrentURL();
+            var strURL = window.razoss.GetCurrentURL();
             return strURL;
         },
         
         getCurrentTitle: function () {
             this.breakIfNotRazossBrowser();
-            var strTitle = razoss.api.getCurrentTitle();
+            var strTitle = window.razoss.GetCurrentTitle();
             
             return strTitle;
         },
-        
-        
+
         getEngineVariable: function (name) {
-            this.breakIfNotRazossBrowser();                
-            var strValue = "";    //window.external.rapi_GetEngineVariable(name);
-            
-            return strValue;
+            this.breakIfNotRazossBrowser();
+            return window.razoss.GetEngineVariable(name);
         },
         
         setStorageValue: function (name, value) {
             this.breakIfNotRazossBrowser();                
-            //window.external.rapi_SetStorageValue(name, value);
+            window.razoss.SetStorageValue(name, value);
         },
         
         getStorageValue: function (name) {
             this.breakIfNotRazossBrowser();                
-            var strValue = "";//window.external.rapi_GetStorageValue(name);
-            return strValue;
+            return window.razoss.GetStorageValue(name);
         },
         
         isStorageValueExists: function (name) {
             this.breakIfNotRazossBrowser();                
-            var b = false;//window.external.rapi_IsStorageValueExists(name);
-            return b;
+            return window.razoss.IsStorageValueExists(name);
         },
         
         executeScript: function (exescript) {
             this.breakIfNotRazossBrowser();                
-            //window.external.rapi_ExecuteScript(exescript);
+            window.razoss.ExecuteScript(exescript);
         },
 
         getPageSource: function () {
             this.breakIfNotRazossBrowser();
-            return razoss.api.getPageSource();
+            return window.razoss.GetPageSource();
         },
         
         setNewWindowBehavior: function (url, value) {
             this.breakIfNotRazossBrowser();
-            
             //window.external.rapi_SetNewWindowBehavior(url, value);
         },
 
         dock: function (pos) {
             this.breakIfNotRazossBrowser();
-            
-            razoss.api.dock(pos);
-            //window.external.rapi_Dock(pos);
+            window.razoss.Dock(pos);
         },
         
         resize: function (width, height, keepPosition/*=true by default*/) {
@@ -541,37 +516,37 @@ if (rapi_validator.get_type() === rapi_type.ie) {
             if (keepPosition === undefined) {
                 keepPosition = true;
             }
-            razoss.api.resize(width, height, keepPosition);
+            window.razoss.Resize(width, height, keepPosition);
         },
         
         resizeKeepPosition: function (width, height, keepPosition) {
             this.breakIfNotRazossBrowser();
-            razoss.api.resize(width, height, keepPosition);
+            window.razoss.Resize(width, height, keepPosition);
         },
         
         show: function (showmode) {
             this.breakIfNotRazossBrowser();
-            razoss.api.show(showmode);
+            window.razoss.Show(showmode);
         },
         
         setTrasparentColor: function (col) {
             this.breakIfNotRazossBrowser();
-            razoss.api.setTransparency(col);
+            window.razoss.SetTransparency(col);
         },
         
         getTrasparentColor: function () {
             this.breakIfNotRazossBrowser();
-            return razoss.api.getTransparency();
+            return "#" + window.razoss.GetTransparency();
         },
         
         setOpacity: function (alpha) {
             this.breakIfNotRazossBrowser();
-            razoss.api.setOpacity(alpha);
+            window.razoss.SetOpacity(alpha);
         },
         
         getOpacity: function () {
             this.breakIfNotRazossBrowser();
-            return razoss.api.getOpacity();
+            return window.razoss.GetOpacity();
         }
     };
     // }}}

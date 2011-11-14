@@ -351,7 +351,28 @@ if (rapi_validator.get_type() === rapi_type.ie) {
         moveWindow: function (position, x, y) {
             this.breakIfNotRazossBrowser();
             window.external.rapi_MoveWindow(position, x, y);
+        },
+
+        FBLogin: function (type, appid, appsecret, permissions) {
+            window.external.rapi_FBLogin(type, appid, appsecret, permissions);
+        },
+        
+        FBLogout: function () {
+            window.external.rapi_FBLogout();
+        },
+        
+        ChatDisconnect: function (type) {
+            window.external.rapi_ChatDisconnect(type);
+        },
+        
+        ChatConnect: function (type) {
+            window.external.rapi_ChatConnect(type);
+        },
+        
+        ChatSendMessage: function (type, id, message) {
+            window.external.rapi_ChatSendMessage(type, id, message);
         }
+           
     };
     // }}}
 } else {

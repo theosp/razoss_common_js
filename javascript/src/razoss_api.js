@@ -319,6 +319,70 @@ RERUIRES: Node.js's EventEmitter
     };
     // }}}
 
+    // isChatAvailable {{{
+    $.RazossApi.prototype.isChatAvailable = function () {
+        var self = this;
+
+        if (self.environment === 'razoss_browser') {
+            if (typeof window.external !== 'undefined' && typeof window.external.rapi_FBLogin !== 'undefined') {
+                return true;
+            }
+        }
+
+        return false;
+    };
+    // }}}
+
+    // fbLogin {{{
+    $.RazossApi.prototype.fbLogin = function (type, appid, appsecret, permissions) {
+        var self = this;
+
+        if (self.environment === 'razoss_browser') {
+            return rgw.FBLogin(type, appid, appsecret, permissions);
+        }
+    };
+    // }}}
+
+    // fbLogout {{{
+    $.RazossApi.prototype.fbLogout = function () {
+        var self = this;
+
+        if (self.environment === 'razoss_browser') {
+            return rgw.FBLogout();
+        }
+    };
+    // }}}
+
+    // chatDisconnect {{{
+    $.RazossApi.prototype.chatDisconnect = function (type) {
+        var self = this;
+
+        if (self.environment === 'razoss_browser') {
+            return rgw.ChatDisconnect(type);
+        }
+    };
+    // }}}
+
+    // chatConnect {{{
+    $.RazossApi.prototype.chatConnect = function (type) {
+        var self = this;
+
+        if (self.environment === 'razoss_browser') {
+            return rgw.ChatConnect(type);
+        }
+    };
+    // }}}
+
+    // chatSendMessage {{{
+    $.RazossApi.prototype.chatSendMessage = function (type, id, message) {
+        var self = this;
+
+        if (self.environment === 'razoss_browser') {
+            return rgw.ChatSendMessage(type, id, message);
+        }
+    };
+    // }}}
+
     // }}}
 
     // Initiate singleton {{{

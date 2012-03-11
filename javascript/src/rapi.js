@@ -2,9 +2,9 @@
  *  Razoss gateway API v0.1
  *  http://www.razoss.com
  *
- *  Copyright (c) 2009
- *  Date: July 2009 - December 2010
- *  Revision: 6
+ *  Copyright (c) 2009-2012
+ *  Date: July 2009 - February 2012
+ *  Revision: 8
  *
 */
 
@@ -136,10 +136,18 @@ if (rapi_validator.get_type() === rapi_type.ie) {
             // TODO IMPLEMENT! ?
         },
         
-        registerEvent: function (eventName, funcName) {
-            this.breakIfNotRazossBrowser();
-            
-            var result = window.external.rapi_RegisterEvent(eventName, funcName);
+        registerEvent: function (eventName, funcName, activeIfHidden) {
+            this.breakIfNotRazossBrowser();			if(activeIfHidden==undefined)				activeIfHidden = true;
+            var result = 0;
+			try 
+			{ 
+				result = window.external.rapi_RegisterEvent(eventName, funcName, activeIfHidden); 
+			} 
+			catch(e)
+			{
+				result = window.external.rapi_RegisterEvent(eventName, funcName); 	// fallback for engines that cannot accept 3rd parameter
+			}
+			
             return result;
         },
         
@@ -214,6 +222,11 @@ if (rapi_validator.get_type() === rapi_type.ie) {
         executeScript: function (exescript) {
             this.breakIfNotRazossBrowser();                
             window.external.rapi_ExecuteScript(exescript);
+        },
+		
+		getPageSource: function () {
+            this.breakIfNotRazossBrowser();
+			return window.external.rapi_GetPageSource();
         },
         
         setNewWindowBehavior: function (url, value) {
@@ -352,25 +365,25 @@ if (rapi_validator.get_type() === rapi_type.ie) {
             this.breakIfNotRazossBrowser();
             window.external.rapi_MoveWindow(position, x, y);
         },
-
-        FBLogin: function (type, appid, appsecret, permissions) {
-            window.external.rapi_FBLogin(type, appid, appsecret, permissions);
+        
+        FBLogin: function(type, appid, appsecret,permissions)
+        {
+          window.external.rapi_FBLogin(type,appid,appsecret,permissions);
+        } ,
+        
+        FBLogout: function()
+        {
+          window.external.rapi_FBLogout();
         },
         
-        FBLogout: function () {
-            window.external.rapi_FBLogout();
+        ChatDisconnect: function(type)
+        {
+          window.external.rapi_ChatDisconnect(type);
         },
         
-        ChatDisconnect: function (type) {
-            window.external.rapi_ChatDisconnect(type);
-        },
-        
-        ChatConnect: function (type) {
-            window.external.rapi_ChatConnect(type);
-        },
-        
-        ChatSendMessage: function (type, id, message) {
-            window.external.rapi_ChatSendMessage(type, id, message);
+        ChatSendMessage: function(type, id, message)
+        {
+          window.external.rapi_ChatSendMessage(type,id,message);
         }
            
     };
@@ -453,8 +466,11 @@ if (rapi_validator.get_type() === rapi_type.ie) {
             return window.razoss.GetEngineDate();
         },
         
-        registerEvent: function (eventName, funcName) {
+        registerEvent: function (eventName, funcName, activeIfHidden) {
             this.breakIfNotRazossBrowser();
+
+			if(activeIfHidden==undefined)
+				activeIfHidden = true;
             
             var result = window.razoss.RegisterEvent(eventName, funcName);
             return result;

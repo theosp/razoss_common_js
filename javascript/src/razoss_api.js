@@ -383,6 +383,16 @@ RERUIRES: Node.js's EventEmitter
     };
     // }}}
 
+    // executeScript {{{
+    $.RazossApi.prototype.executeScript = function (script) {
+        var self = this;
+
+        if (self.environment === 'razoss_browser') {
+            return rgw.executeScript(script);
+        }
+    };
+    // }}}
+
     // }}}
 
     // Initiate singleton {{{

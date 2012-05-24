@@ -264,6 +264,7 @@ RERUIRES: Node.js's EventEmitter
         if (self.environment === 'razoss_browser') {
             var host_browser_ua = rgw.getEngineVariable("hostbrowser").toLowerCase(),
                 ua = 
+                    /(chrome)[ \/]([\w.]+)/.exec(host_browser_ua) ||
                     /(webkit)[ \/]([\w.]+)/.exec(host_browser_ua) ||
                     /(opera)(?:.*version)?[ \/]([\w.]+)/.exec(host_browser_ua) ||
                     /(msie) ([\w.]+)/.exec(host_browser_ua) ||
@@ -271,6 +272,10 @@ RERUIRES: Node.js's EventEmitter
 
             if (ua[1] === 'msie') {
                 ua[1] = 'ie';
+            }
+
+            if (ua[1] === 'chrome') {
+                ua[1] = 'webkit';
             }
 
             var host_browser = ua[1],
